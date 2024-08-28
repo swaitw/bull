@@ -1,3 +1,10 @@
+## [4.16.1](https://github.com/OptimalBits/bull/compare/v4.16.0...v4.16.1) (2024-08-28)
+
+
+### Bug Fixes
+
+* **metrics:** use batches include when collecting metrics ([#2765](https://github.com/OptimalBits/bull/issues/2765)) fixes [#2764](https://github.com/OptimalBits/bull/issues/2764) [#2763](https://github.com/OptimalBits/bull/issues/2763) ([8276f72](https://github.com/OptimalBits/bull/commit/8276f72b30a7abc2f3fb5509f980d931027d0f0c))
+
 # [4.16.0](https://github.com/OptimalBits/bull/compare/v4.15.1...v4.16.0) (2024-07-30)
 
 
