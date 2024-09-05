@@ -1,3 +1,10 @@
+## [4.16.2](https://github.com/OptimalBits/bull/compare/v4.16.1...v4.16.2) (2024-09-05)
+
+
+### Performance Improvements
+
+* **metrics:** save zeros as much as max data points ([#2767](https://github.com/OptimalBits/bull/issues/2767)) ([3a09840](https://github.com/OptimalBits/bull/commit/3a098406a86573150ad13d1487d16211030c4200))
+
 ## [4.16.1](https://github.com/OptimalBits/bull/compare/v4.16.0...v4.16.1) (2024-08-28)
 
 
