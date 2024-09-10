@@ -1,3 +1,10 @@
+## [4.16.3](https://github.com/OptimalBits/bull/compare/v4.16.2...v4.16.3) (2024-09-10)
+
+
+### Bug Fixes
+
+* **metrics:** differentiate points in different minutes to be more accurate ([#2770](https://github.com/OptimalBits/bull/issues/2770)) ([fbf2fa3](https://github.com/OptimalBits/bull/commit/fbf2fa397c865e6620aac39b291704e486f424d2))
+
 ## [4.16.2](https://github.com/OptimalBits/bull/compare/v4.16.1...v4.16.2) (2024-09-05)
 
 
