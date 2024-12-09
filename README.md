@@ -44,18 +44,28 @@
   </p>
 </div>
 
+### 🚀 Sponsors 🚀
+
+<table cellspacing="0" cellpadding="0" border="0">
+  <tr>
+    <td>
+      <a href="https://www.dragonflydb.io/">
+        <img src="https://raw.githubusercontent.com/dragonflydb/dragonfly/main/.github/images/logo-full.svg" width=550 alt="Dragonfly" />
+      </a>
+    </td>
+    <td>
+      Dragonfly is a new Redis™ drop-in replacement that is fully compatible with BullMQ and brings some important advantages over Redis™ such as massive
+      better performance by utilizing all CPU cores available and faster and more memory efficient data structures. Read more <a href="https://www.dragonflydb.io/docs/integrations/bullmq">here</a> on how to use it with BullMQ.
+    </td>
+  </tr>
+</table>
+
 ### 📻 News and updates
 
 Bull is currently in maintenance mode, we are only fixing bugs. For new features check [BullMQ](https://github.com/taskforcesh/bullmq), a modern rewritten
 implementation in Typescript. You are still very welcome to use Bull if it suits your needs, which is a safe, battle tested library.
 
 Follow me on [Twitter](http://twitter.com/manast) for other important news and updates.
-
-### 🌟 Rediscover Scale Conference 2024
-
-Discover the latest in in-memory and real-time data technologies at **Rediscover Scale 2024**. Ideal for engineers, architects, and technical leaders looking to push technological boundaries. Connect with experts and advance your skills at The Foundry SF, San Francisco.
-
-[Learn more and register here!](https://www.rediscoverscale.com/)
 
 ### 🛠 Tutorials
 
@@ -114,32 +124,6 @@ Bull is popular among large and small organizations, like the following ones:
 </table>
 
 ---
-
-### 🚀 Sponsors 🚀
-
-<table cellspacing="0" cellpadding="0" border="0">
-  <tr>
-    <td>
-      <a href="https://www.dragonflydb.io/">
-        <img src="https://raw.githubusercontent.com/dragonflydb/dragonfly/main/.github/images/logo-full.svg" width=550 alt="Dragonfly" />
-      </a>
-    </td>
-    <td>
-      Dragonfly is a new Redis™ drop-in replacement that is fully compatible with BullMQ and brings some important advantages over Redis™ such as massive
-      better performance by utilizing all CPU cores available and faster and more memory efficient data structures. Read more <a href="https://www.dragonflydb.io/docs/integrations/bullmq">here</a> on how to use it with BullMQ.
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <a href="https://dashboard.memetria.com/new?utm_campaign=BULLMQ">
-        <img src="https://www.memetria.com/images/logo/memetria-logo.svg" width=350 alt="Memetria for Redis" />
-      </a>
-    </td>
-    <td>
-    If you need high quality production Redis instances for your Bull project, please consider subscribing to <a href="https://dashboard.memetria.com/new?utm_campaign=BULLMQ">Memetria for Redis</a>, leaders in Redis hosting that works perfectly with BullMQ. Use the promo code "BULLMQ" when signing up to help us sponsor the development of BullMQ!    
-    </td>
-  </tr>
-</table>
 
 ---
 
