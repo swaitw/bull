@@ -1,3 +1,10 @@
+## [4.16.5](https://github.com/OptimalBits/bull/compare/v4.16.4...v4.16.5) (2024-12-18)
+
+
+### Bug Fixes
+
+* upgrade cron-parser dependency for Luxon CVE-2023-22467 ([e45698e](https://github.com/OptimalBits/bull/commit/e45698eb91b91a4676f9bafdb7bdb35043d2316d))
+
 ## [4.16.4](https://github.com/OptimalBits/bull/compare/v4.16.3...v4.16.4) (2024-11-01)
 
 
