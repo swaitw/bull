@@ -3,16 +3,17 @@
     In order to be able to remove a job, it must be unlocked.
 
      Input:
-      KEYS[1] 'active',
-      KEYS[2] 'wait',
-      KEYS[3] 'delayed',
-      KEYS[4] 'paused',
-      KEYS[5] 'completed',
-      KEYS[6] 'failed',
-      KEYS[7] 'priority',
-      KEYS[8] jobId
-      KEYS[9] job logs
+      KEYS[1]  'active',
+      KEYS[2]  'wait',
+      KEYS[3]  'delayed',
+      KEYS[4]  'paused',
+      KEYS[5]  'completed',
+      KEYS[6]  'failed',
+      KEYS[7]  'priority',
+      KEYS[8]  jobId key
+      KEYS[9]  job logs
       KEYS[10] rate limiter index table
+      KEYS[11] prefix key
 
       ARGV[1]  jobId
       ARGV[2]  lock token
@@ -24,8 +25,12 @@
 -- TODO PUBLISH global event 'removed'
 
 local rcall = redis.call
+
+-- Includes
+--- @include "includes/removeDebounceKey"
+
 local lockKey = KEYS[8] .. ':lock'
-local lock = redis.call("GET", lockKey)
+local lock = rcall("GET", lockKey)
 if not lock then             -- or (lock == ARGV[2])) then
   local jobId = ARGV[1]
   rcall("LREM", KEYS[1], 0, jobId)
@@ -35,6 +40,9 @@ if not lock then             -- or (lock == ARGV[2])) then
   rcall("ZREM", KEYS[5], jobId)
   rcall("ZREM", KEYS[6], jobId)
   rcall("ZREM", KEYS[7], jobId)
+
+  removeDebounceKey(KEYS[11], KEYS[8])
+
   rcall("DEL", KEYS[8])
   rcall("DEL", KEYS[9])
 

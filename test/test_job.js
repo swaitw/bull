@@ -201,6 +201,16 @@ describe('Job', () => {
           });
         });
     });
+
+    describe('when job was removed', () => {
+      it('throws an error', async () => {
+        const job = await Job.create(queue, { foo: 'bar' });
+        await job.remove();
+        await job.update({ baz: 'qux' }).catch(err => {
+          expect(err.message).to.be.equal('Missing key for job 1 updateData');
+        });
+      });
+    });
   });
 
   describe('.remove', () => {
@@ -520,7 +530,7 @@ describe('Job', () => {
     it('can set and get progress as number', () => {
       return Job.create(queue, { foo: 'bar' }).then(job => {
         return job.progress(42).then(() => {
-          return Job.fromId(queue, job.id).then(storedJob => {
+          return Job.fromId(queue, job.id).then(async storedJob => {
             expect(storedJob.progress()).to.be(42);
           });
         });
@@ -531,6 +541,18 @@ describe('Job', () => {
       await job.progress({ total: 120, completed: 40 });
       const storedJob = await Job.fromId(queue, job.id);
       expect(storedJob.progress()).to.eql({ total: 120, completed: 40 });
+    });
+
+    describe('when job was removed', () => {
+      it('throws an error', async () => {
+        const job = await Job.create(queue, { foo: 'bar' });
+        await job.remove();
+        await job.progress({ total: 120, completed: 40 }).catch(err => {
+          expect(err.message).to.be.equal(
+            'Missing key for job 1 updateProgress'
+          );
+        });
+      });
     });
   });
 
@@ -571,16 +593,29 @@ describe('Job', () => {
           .then(logs => expect(logs).to.be.eql({ logs: [], count: 0 }))
       );
     });
+
+    describe('when job was removed', () => {
+      it('throws an error', async () => {
+        const job = await Job.create(queue, { foo: 'bar' });
+        await job.remove();
+        await job.log('some log text 1').catch(err => {
+          expect(err.message).to.be.equal('Missing key for job 1 addLog');
+        });
+      });
+    });
   });
 
   describe('.moveToCompleted', () => {
     it('marks the job as completed and returns new job', () => {
       return Job.create(queue, { foo: 'bar' }).then(job1 => {
-        return Job.create(queue, { foo: 'bar' }).then(job2 => {
+        return Job.create(queue, { foo: 'bar' }, { lifo: true }).then(job2 => {
           return job2
             .isCompleted()
             .then(isCompleted => {
               expect(isCompleted).to.be(false);
+            })
+            .then(() => {
+              return scripts.moveToActive(queue);
             })
             .then(() => {
               return job2.moveToCompleted('succeeded', true);
@@ -606,6 +641,9 @@ describe('Job', () => {
             expect(isFailed).to.be(false);
           })
           .then(() => {
+            return scripts.moveToActive(queue);
+          })
+          .then(() => {
             return job.moveToFailed(new Error('test error'), true);
           })
           .then(() => {
@@ -626,6 +664,9 @@ describe('Job', () => {
             expect(isFailed).to.be(false);
           })
           .then(() => {
+            return scripts.moveToActive(queue);
+          })
+          .then(() => {
             return job.moveToFailed(new Error('test error'), true);
           })
           .then(() => {
@@ -641,12 +682,37 @@ describe('Job', () => {
       });
     });
 
+    it('unlocks the job when moving it to delayed', () => {
+      queue.process(() => {
+        throw new Error('Oh dear');
+      });
+      return Job.create(
+        queue,
+        { foo: 'bar' },
+        { attempts: 3, backoff: 100 }
+      ).then(job => {
+        return new Promise(resolve => {
+          queue.once('failed', resolve);
+        })
+          .then(() => {
+            const client = new redis();
+            return client.get(job.lockKey());
+          })
+          .then(lockValue => {
+            expect(lockValue).to.be(null);
+          });
+      });
+    });
+
     it('marks the job as failed when attempts made equal to attempts given', () => {
       return Job.create(queue, { foo: 'bar' }, { attempts: 1 }).then(job => {
         return job
           .isFailed()
           .then(isFailed => {
             expect(isFailed).to.be(false);
+          })
+          .then(() => {
+            return scripts.moveToActive(queue);
           })
           .then(() => {
             return job.moveToFailed(new Error('test error'), true);
@@ -673,6 +739,9 @@ describe('Job', () => {
             expect(isFailed).to.be(false);
           })
           .then(() => {
+            return scripts.moveToActive(queue);
+          })
+          .then(() => {
             return job.moveToFailed(new Error('test error'), true);
           })
           .then(() => {
@@ -690,29 +759,35 @@ describe('Job', () => {
 
     it('applies stacktrace limit on failure', () => {
       const stackTraceLimit = 1;
-      return Job.create(queue, { foo: 'bar' }, { stackTraceLimit }).then(
-        job => {
-          return job
-            .isFailed()
-            .then(isFailed => {
-              expect(isFailed).to.be(false);
-            })
-            .then(() => {
-              return job.moveToFailed(new Error('test error'), true);
-            })
-            .then(() => {
-              return job
-                .moveToFailed(new Error('test error'), true)
-                .then(() => {
-                  return job.isFailed().then(isFailed => {
-                    expect(isFailed).to.be(true);
-                    expect(job.stacktrace).not.be(null);
-                    expect(job.stacktrace.length).to.be(stackTraceLimit);
-                  });
-                });
+      return Job.create(
+        queue,
+        { foo: 'bar' },
+        { stackTraceLimit, attempts: 2 }
+      ).then(job => {
+        return job
+          .isFailed()
+          .then(isFailed => {
+            expect(isFailed).to.be(false);
+          })
+          .then(() => {
+            return scripts.moveToActive(queue);
+          })
+          .then(() => {
+            return job.moveToFailed(new Error('test error'), true);
+          })
+          .then(() => {
+            return scripts.moveToActive(queue);
+          })
+          .then(() => {
+            return job.moveToFailed(new Error('test error'), true).then(() => {
+              return job.isFailed().then(isFailed => {
+                expect(isFailed).to.be(true);
+                expect(job.stacktrace).not.be(null);
+                expect(job.stacktrace.length).to.be(stackTraceLimit);
+              });
             });
-        }
-      );
+          });
+      });
     });
   });
 
@@ -839,7 +914,9 @@ describe('Job', () => {
           })
           .then(state => {
             expect(state).to.be('completed');
-            return client.zrem(queue.toKey('completed'), job.id);
+            return client.zrem(queue.toKey('completed'), job.id).then(() => {
+              return client.lpush(queue.toKey('active'), job.id);
+            });
           })
           .then(() => {
             return job.moveToDelayed(Date.now() + 10000, true);
@@ -853,7 +930,9 @@ describe('Job', () => {
           })
           .then(state => {
             expect(state).to.be('delayed');
-            return client.zrem(queue.toKey('delayed'), job.id);
+            return client.zrem(queue.toKey('delayed'), job.id).then(() => {
+              return client.lpush(queue.toKey('active'), job.id);
+            });
           })
           .then(() => {
             return job.moveToFailed(new Error('test'), true);
